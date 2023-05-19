@@ -40,6 +40,13 @@ calidaddf = pd.read_sql_query("SELECT * FROM variablesCALIDAD", con)
 
 con.close()
 
+print("Registros disponibles del STN hasta " + str(stndf["fecha"][0]))
+print("Registros disponibles del STR hasta " + str(strdf["fecha"][0]))
+print("Registros disponibles de ADDs hasta " + str(addsdf["fecha"][0]))
+print("Registros disponibles de SDL hasta " + str(sdldf["fecha"][0]))
+print("Registros disponibles de Calidad SDL hasta " + str(calidaddf["fecha"][0]))
+print("Registros disponibles de CPROG hasta " + str(cprogdf["fecha"][0]))
+
 ## Functions
 
 def format(Valor):
@@ -166,27 +173,6 @@ def realizar_grafica(GraficaDF, name = "SinNombre", title = 'Sin titulo', tamañ
     return save
 
 
-# Funcion Graficas ADDs
-def realizar_grafica_ADD(Area, ImgName, titleADD):
-    add1 = (addsdf[(addsdf["fecha"] >= fecha_adds_m2_Ini) & (addsdf["fecha"] <= fecha_adds_m2_Fin)])
-    add1 = add1[add1['Area'] == Area ].sort_values(by='fecha', ascending = False).head(9)
-    add_DF1 = add1.sort_values("fecha")[["Mes", "NT", "Ingreso Real", "Ingreso por ADD"]].set_index('Mes')
-    MesesADD = add_DF1.index.tolist()
-    AñosADD = add1["Año"].tolist()
-    add_DF = pd.pivot_table(add_DF1, values = ['Ingreso Real','Ingreso por ADD'], index = ['Mes', 'NT'])
-    realizar_grafica(add_DF, ImgName, titleADD, (6.5,6))
-    xticks = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-    xticks_lab = ['NT1', 'NT2 \n' + MesesADD[2],
-                'NT3','NT1', 'NT2 \n' + MesesADD[5],
-                'NT3','NT1', 'NT2 \n' + MesesADD[8], 'NT3']
-
-    plt.xticks(xticks, xticks_lab)
-    plt.xlabel("Nivel de Tensión \n Mes")
-
-    save = plt.savefig(r"Temp\{name}.png".format(name=ImgName))
-    return save, MesesADD, AñosADD
-
-
 #### ----------------- DESACTIVADA INTEFAZ HASTA ENTRAR EN PRODUCCIÓN -------------------------
 # def getFechas():
 #     global Fecha_inicio
@@ -235,7 +221,7 @@ print("Fecha Final Elegida: " + Fecha_final)
 
 colorppal = ['#440099', '#FF6A13', '#75787B'] # Colores principales
 colorlist = ['#440099', '#AF97CC', '#FF6A13', '#66554B', '#75787B', '#8097AD']
-colorfull = ['#440099', '#AF97CC', '#FF6A13', '#66554B', '#75787B', '#8097AD', '#6EB4FA']
+colorfull = ['#440099', '#AF97CC', '#FF6A13', '#66554B', '#75787B', '#8097AD', '#6EB4FA', '#CC540E']
 
 
 ## Graficas del STN
@@ -275,7 +261,7 @@ Analisis_Ingresos_DF = stndf.head(4).sort_values("fecha")[["Mes","Ingreso Neto S
 
 
 plt.style.use('seaborn-darkgrid')
-ax1, ax2 = Grafica_IPPyIPC_DF.plot.line(subplots= True, marker = 'o', color = ['#440099', '#FF6A13'], linewidth = 2, fontsize = 13)
+ax1, ax2 = Grafica_IPPyIPC_DF.plot.line(subplots= True, marker = 'o', color = ['#440099', '#FF6A13'], linewidth = 2, fontsize = 13, figsize = (6.5,6))
 plt.xlabel('Mes', fontsize = 14)
 ajuste_dis_IPPeIPC = [-0.05,0.95,1.95]
 for idx in range(len(Grafica_IPPyIPC_DF)):
@@ -294,7 +280,7 @@ año = get_año(stndf)
 
 
 ## Grafica 1.2 - IPPI y TCRM
-ax1, ax2 = Grafica_IPPIyTCRM_DF.plot.line(subplots= True, marker = 'o', color = ['#440099', '#FF6A13'], linewidth = 2, fontsize = 13)
+ax1, ax2 = Grafica_IPPIyTCRM_DF.plot.line(subplots= True, marker = 'o', color = ['#440099', '#FF6A13'], linewidth = 2, fontsize = 13, figsize = (6.5,6))
 plt.xlabel('Mes')
 ajuste_dis_IPPIyTCRM = [-0.05,0.95,1.95]
 for idx in range(len(Grafica_IPPIyTCRM_DF)):
@@ -336,7 +322,7 @@ plt.savefig(r"Temp\{name}.png".format(name="TCRM_alt"))
 ## STN
 
 ## Grafica 2 - Cargos T
-ax = Grafica_CargosT_DF.plot.line(marker = 'o', color = ['#440099', '#FF6A13', '#2AD2C9','#00966C'], linewidth = 2)
+ax = Grafica_CargosT_DF.plot.line(marker = 'o', color = ['#440099', '#FF6A13', '#2AD2C9','#00966C'], linewidth = 2, figsize = (6,5))
 ajuste_dis = [-0.05,0.95,1.95]
 for idx in range(len(Grafica_CargosT_DF)):
     ax.text(ajuste_dis[idx], Grafica_CargosT_DF['T_Max'][idx] - 0.8, round(Grafica_CargosT_DF['T_Max'][idx],1), size = 10)
@@ -391,14 +377,13 @@ strdf["DT4 STR Norte"] = strdf["DT4STR1"]
 strdf["DT4 STR Centro Sur"] = strdf["DT4STR2"]
 
 Grafica_CargosSTR_DF = strdf.head(3).sort_values("fecha")[["Mes", "CD4 STR Norte", "CD4 STR Centro Sur", "DT4 STR Norte", "DT4 STR Centro Sur"]].set_index("Mes")
-ax = Grafica_CargosSTR_DF.plot.line(marker = 'o', color = ['#440099', '#FF6A13', '#75787B','#00966C'], linewidth = 2)
+ax = Grafica_CargosSTR_DF.plot.line(marker = 'o', color = ['#440099', '#FF6A13', '#75787B','#00966C'], linewidth = 2, figsize = (6,5))
 for idx in range(len(Grafica_CargosSTR_DF)):
     ax.text(ajuste_dis[idx], Grafica_CargosSTR_DF["CD4 STR Norte"][idx] - 0.8, round(Grafica_CargosSTR_DF["CD4 STR Norte"][idx],1), size = 10)
     ax.text(ajuste_dis[idx], Grafica_CargosSTR_DF["CD4 STR Centro Sur"][idx] - 0.8, round(Grafica_CargosSTR_DF["CD4 STR Centro Sur"][idx],1), size = 10)
     ax.text(ajuste_dis[idx], Grafica_CargosSTR_DF["DT4 STR Norte"][idx] + 0.5, round(Grafica_CargosSTR_DF["DT4 STR Norte"][idx],1), size = 10)
     ax.text(ajuste_dis[idx], Grafica_CargosSTR_DF["DT4 STR Centro Sur"][idx] + 0.5, round(Grafica_CargosSTR_DF["DT4 STR Centro Sur"][idx],1), size = 10)
 plt.xlabel('Mes')
-plt.ylabel('Cargos STR')
 plt.title('Cargos STR (COP/kWh)')
 plt.grid()
 plt.savefig(r"Temp\{name}.png".format(name="STR_Cargos"))
@@ -432,6 +417,25 @@ addsdf["NT"] = addsdf["NivelTension"]
 addsdf["Ingreso Real"] = addsdf["IngR"].apply(format)
 addsdf["Ingreso por ADD"] = addsdf["IngADD"].apply(format)
 
+# Funcion Graficas ADDs
+def realizar_grafica_ADD(Area, ImgName, titleADD):
+    add1 = (addsdf[(addsdf["fecha"] >= fecha_adds_m2_Ini) & (addsdf["fecha"] <= fecha_adds_m2_Fin)])
+    add1 = add1[add1['Area'] == Area ].sort_values(by='fecha', ascending = False).head(9)
+    add_DF1 = add1.sort_values("fecha")[["Mes", "NT", "Ingreso Real", "Ingreso por ADD"]].set_index('Mes')
+    MesesADD = add_DF1.index.tolist()
+    AñosADD = add1["Año"].tolist()
+    add_DF = pd.pivot_table(add_DF1, values = ['Ingreso Real','Ingreso por ADD'], index = ['Mes', 'NT'])
+    realizar_grafica(add_DF, ImgName, titleADD, (6,4))
+    xticks = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    xticks_lab = ['NT1', 'NT2 \n' + MesesADD[2],
+                'NT3','NT1', 'NT2 \n' + MesesADD[5],
+                'NT3','NT1', 'NT2 \n' + MesesADD[8], 'NT3']
+
+    plt.xticks(xticks, xticks_lab)
+    plt.xlabel(" ")
+
+    save = plt.savefig(r"Temp\{name}.png".format(name=ImgName))
+    return save, MesesADD, AñosADD
 
 realizar_grafica_ADD('ADD Oriente', 'ADD_Oriente', 'Ingresos a OR de ADD Oriente (COP)')
 realizar_grafica_ADD('ADD Occidente', 'ADD_Occidente', 'Ingresos a OR de ADD Occidente (COP)')
@@ -484,45 +488,44 @@ def realizar_grafica_SDL(GraficaDF, AreaName = 'ADD Centro', ImgName = "No name"
         df1 = (GraficaDF[(GraficaDF["Comercializador"] == "None") & (GraficaDF["Tipo"] == "6")]).sort_values(["fecha", "Mercado"], ascending = False).reset_index()[["fecha", "Mes", "Mercado", "Tipo", "DT1"]].reset_index()
         ListMerc = df1["Mercado"].head(nORs).tolist()
         df11 = df1[df1["Mercado"] == ListMerc[0]]
-        ax = df11.plot.line(x = "index", y = "DT1", label = ListMerc[0], color = colorfull[0], marker = 'o', figsize = (7,4))
+        ax = df11.plot.line(x = "Mes", y = "DT1", label = ListMerc[0], color = colorfull[0], marker = '.', figsize = (7,4))
         for i in range(nORs - 1):
             dfi = df1[df1["Mercado"] == ListMerc[i+1]]
-            dfi.plot(x = "index", y = "DT1", ax=ax, label = ListMerc[i+1], color = colorfull[i+1], marker = 'o', figsize = (7,4))
+            dfi.plot(x = "Mes", y = "DT1", ax=ax, label = ListMerc[i+1], color = colorfull[i+1], marker = '.', figsize = (7,4))
         xticks = [1,5.5,9.5]
 
     else:
         df1 = (GraficaDF[(GraficaDF["Area"] == AreaName) & (GraficaDF["fecha"] >= Fecha_inicio) & (GraficaDF["fecha"] <= Fecha_final)]).sort_values(["fecha", "Mercado"], ascending = False)[["fecha", "Mes", "Mercado", "DT", "DtUN", "NT"]]
         df1 = df1[df1["NT"] == '1'].reset_index()[["Mes", "Mercado", "DT", "DtUN"]].reset_index()
+        df_dtun = df1.drop_duplicates(subset = ["DtUN"])
         ListMerc = df1["Mercado"].head(nORs).tolist()
         df1[df1["Mercado"] == ListMerc[0]]
-        ax = df1.plot(x='index', y='DtUN', label = "DtUN " + AreaName, linewidth = 3, figsize = (7,4))
+        ax = df_dtun.plot(x='Mes', y='DtUN', label = "DtUN " + AreaName, linewidth = 3, figsize = (7,4), color = colorfull[0])
         for i in range (nORs):
             dfi = df1[df1["Mercado"] == ListMerc[i]]
-            dfi.plot(x = "index", y = "DT", kind = "line", ax=ax, label = ListMerc[i], color = colorfull[i], marker = 'o', figsize = (7,4))
+            dfi.plot(x = "Mes", y = "DT", kind = "line", ax=ax, label = ListMerc[i], color = colorfull[i+1], marker = '.', figsize = (7,4))
         xticks = [3,10,17]
 
-    if AreaName == "ADD Sur":
-        xticks = [0.5,8.5,15.5]
-    elif AreaName == "ADD Oriente":
-        xticks = [1,7,13]
-    
+    # if AreaName == "ADD Sur":
+    #     xticks = [0.5,8.5,15.5]
+    # elif AreaName == "ADD Oriente":
+    #     xticks = [1,7,13]
 
-    xticks_lab = [mesesSTR[0], mesesSTR[1], mesesSTR[2]]
-    plt.xlim(-1, len(df1)*1.7)
-    plt.legend(loc='center right')
-    plt.xticks(xticks, xticks_lab)
-    plt.xlabel("Mes")
-    plt.ylabel("Cargo por Uso del NT 1")
+    # xticks_lab = [mesesSTR[0], mesesSTR[1], mesesSTR[2]]
+    # plt.xticks(xticks, xticks_lab)
+    plt.legend(loc='lower center', bbox_to_anchor=(0.25, -0.6))
+    # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='upper left', mode="expand", borderaxespad=0.)
     plt.title(title)
-    plt.grid()
-    save = plt.savefig(r"Temp\{name}.png".format(name=ImgName))
+    plt.xlabel("Mes")
+    plt.title(title)
+    save = plt.savefig(r"Temp\{name}.png".format(name=ImgName), bbox_inches='tight')
     return save
 
-realizar_grafica_SDL(sdldf, "ADD Centro",  "SDL_Cargos_Centro", 'Cargos SDL ADD Centro (COP/kWh)',7)
-realizar_grafica_SDL(sdldf, "ADD Occidente", "SDL_Cargos_Occidente", 'Cargos SDL ADD Occidente (COP/kWh)',5)
-realizar_grafica_SDL(sdldf, "ADD Oriente", "SDL_Cargos_Oriente", 'Cargos SDL ADD Oriente (COP/kWh)',7)
-realizar_grafica_SDL(sdldf, "ADD Sur", "SDL_Cargos_Sur", 'Cargos SDL ADD Sur (COP/kWh)',6)
-realizar_grafica_SDL(sdldfsinADD, "NaN", "SDL_Cargos_sinADD", 'Cargos SDL sin ADD (COP/kWh)',4)
+realizar_grafica_SDL(sdldf, "ADD Centro",  "SDL_Cargos_Centro", 'Cargo DT1 y DTUN para ORs de ADD Centro (COP/kWh)',7)
+realizar_grafica_SDL(sdldf, "ADD Occidente", "SDL_Cargos_Occidente", 'Cargo DT1 y DTUN para ORs de ADD Occidente (COP/kWh)',5)
+realizar_grafica_SDL(sdldf, "ADD Oriente", "SDL_Cargos_Oriente", 'Cargo DT1 y DTUN para ORs de ADD Oriente (COP/kWh)',7)
+realizar_grafica_SDL(sdldf, "ADD Sur", "SDL_Cargos_Sur", 'Cargo DT1 y DTUN para ORs de ADD Sur (COP/kWh)',6)
+realizar_grafica_SDL(sdldfsinADD, "NaN", "SDL_Cargos_sinADD", 'Cargo DT1 para ORs sin ADD (COP/kWh)',4)
 
 
 ## CPROG
@@ -540,15 +543,15 @@ def realizar_grafica_CPROG(GraficaDF, AreaName, ImgName, title, nORs):
     ListMerc = df1["Mercado"].head(nORs).tolist()
 
     df11 = df1[df1["Mercado"] == ListMerc[0]]
-    ax = df11.plot(x='Mes', y='CPROG', label = ListMerc[0], color = colorfull[0], figsize = (7,4))
+    ax = df11.plot(x='Mes', y='CPROG', label = ListMerc[0], color = colorfull[0], marker = '.', figsize = (6.5,4))
     for i in range (nORs - 1):
         dfi = df1[df1["Mercado"] == ListMerc[i+1]]
-        dfi.plot(x = "Mes", y = "CPROG", ax=ax, label = ListMerc[i+1], color = colorfull[i+1], figsize = (7,4))
+        dfi.plot(x = "Mes", y = "CPROG", ax=ax, label = ListMerc[i+1], color = colorfull[i+1], marker = '.', figsize = (6.5,4))
 
-    plt.legend(loc='center right')   
-    plt.xlim(-0.1, 4.7) 
+    plt.legend(loc='lower center', bbox_to_anchor=(0.25, -0.6))
+    # plt.xlim(-0.1, 5) 
     plt.title(title)
-    save = plt.savefig(r"Temp\{name}.png".format(name=ImgName))
+    save = plt.savefig(r"Temp\{name}.png".format(name=ImgName), bbox_inches='tight')
     return save
 
 realizar_grafica_CPROG(cprogdf2, 'ADD Centro', 'CPROG_Centro', 'Cargo CPROG para ADD Centro (COP/kWh)', 7)
@@ -562,13 +565,13 @@ realizar_grafica_CPROG(cprogdf2, 'NaN', 'CPROG_sinADD', 'Cargo CPROG para OR sin
 prep_df(calidaddf)
 
 caldf = (calidaddf[(calidaddf["fecha"] >= Fecha_inicio) & (calidaddf["fecha"] <= Fecha_final)])[["SAIDI", "SAIFI", "Mes"]].set_index("Mes")
-ax = caldf.plot.bar(rot = 0, color = ['#440099', '#FF6A13', '#75787B'])
+ax = caldf.plot.bar(rot = 0, color = ['#440099', '#FF6A13', '#75787B'], figsize = (5,5))
 ajuste_dis_1 = [-0.2,0.8,1.8]
 ajuste_dis_2 = [0.05,1.05,2.05]
 for idx in range(len(caldf)):
-    ax.text(ajuste_dis_1[idx], caldf["SAIDI"][idx] + 0.1, round(caldf["SAIDI"][idx],1), size = 9)
-    ax.text(ajuste_dis_2[idx], caldf["SAIFI"][idx] + 0.1, round(caldf["SAIFI"][idx],1), size = 9)
-plt.title("Indicadores de Calidad Pais")
+    ax.text(ajuste_dis_1[idx], caldf["SAIDI"][idx] + 0.05, round(caldf["SAIDI"][idx],1), size = 9)
+    ax.text(ajuste_dis_2[idx], caldf["SAIFI"][idx] + 0.05, round(caldf["SAIFI"][idx],1), size = 9)
+plt.title("Indicadores de calidad en SDL a nivel pais")
 save = plt.savefig(r"Temp\{name}.png".format(name="Calidad_SDL"))
 
 
@@ -601,60 +604,8 @@ for i in range(len(Analisis_CargosT_DF) - 1):
         cargosTString.append(' los cargos en el STN disminuyeron principalemtne debido a ')   
 
 
-
-
 print("Done Main!")
 
-print("Registros del STN hasta " + str(stndf["fecha"][0]))
-print("Registros del STR hasta " + str(strdf["fecha"][0]))
-print("Registros de ADDs hasta " + str(addsdf["fecha"][0]))
-print("Registros de Convocatorias desde hasta " + FechaIni_conv + " hasta " + FechaFin_conv)
 
 
 
-## Realizar Grafica SDL Old
-
-# def realizar_grafica_SDL(GraficaDF, AreaName = 'ADD Centro', ImgName = "No name", title = "No Title"):
-#     df1 = (GraficaDF[(GraficaDF["Area"] == AreaName) & (GraficaDF["fecha"] >= Fecha_inicio) & (GraficaDF["fecha"] <= Fecha_final)]).sort_values(["fecha", "Mercado"], ascending = False)[["fecha", "Mes", "Mercado", "DT", "DtUN", "NT"]]
-
-#     df11 = df1[df1["NT"] == '1'].reset_index()[["Mes", "Mercado", "DT", "DtUN"]].reset_index()
-#     df12 = df1[df1["NT"] == '2'].reset_index()[["Mes", "Mercado", "DT", "DtUN"]].reset_index()
-#     df13 = df1[df1["NT"] == '3'].reset_index()[["Mes", "Mercado", "DT", "DtUN"]].reset_index()
-    
-
-#     ax = df11.plot(x='index', y='DT', kind='scatter', c='#440099', label='DTUN1', marker = '.' , figsize = (8,5))
-#     df12.plot(x='index', y='DT', kind='scatter', ax=ax, c='#FF6A13', label='DTUN2', marker = '.')
-#     df13.plot(x='index', y='DT', kind='scatter', ax=ax, c='#75787B', label='DTUN3', marker = '.')
-
-#     df11.plot(x='index', y='DtUN', kind='line', ax=ax, c='#440099', label='DT1')
-#     df12.plot(x='index', y='DtUN', kind='line', ax=ax, c='#FF6A13', label='DT2')
-#     df13.plot(x='index', y='DtUN', kind='line', ax=ax, c='#75787B', label='DT3')
-
-#     max_dt = df11["DT"].max()
-#     min_dt = df13["DT"].min()
-
-
-#     if (AreaName == 'ADD Centro') | (AreaName == 'ADD Occidente'):
-#         vlines_pos = [6.5, 13.5]
-#         xticks = [3,10,17]
-#     elif AreaName == 'ADD Sur':
-#         vlines_pos = [5.5, 11.5]
-#         xticks = [2,8.5,15]
-#     elif AreaName == 'ADD Oriente':
-#         vlines_pos = [4.5, 9.5]
-#         xticks = [2,7,12]
-
-#     if AreaName == 'ADD Occidente':
-#         min_dt = df12["DT"].min()
-
-
-#     plt.vlines(x = vlines_pos, ymin = min_dt, ymax = max_dt, color = 'black', linewidth = 1, linestyle = 'dashed')
-#     xticks_lab = [mesesSTR[0], mesesSTR[1], mesesSTR[2]]
-#     # ax.legend(bbox_to_anchor = (1.0, 1), loc = 'upper left')
-#     plt.xticks(xticks, xticks_lab)
-#     plt.xlabel("Mes")
-#     plt.ylabel("Cargo por Uso")
-#     plt.title(title)
-#     plt.grid()
-#     save = plt.savefig(r"Temp\{name}.png".format(name=ImgName))
-#     return save

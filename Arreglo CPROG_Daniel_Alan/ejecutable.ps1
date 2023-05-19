@@ -1,3 +1,0 @@
-﻿conda activate
-python Generacion_Calculos_CPROG_V9.py
-conda deactivate

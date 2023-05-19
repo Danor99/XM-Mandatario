@@ -223,12 +223,12 @@ for conv in ConvList:
     añadir_parrafo(conv, 1)
 
 
-#  Grafica Indicadores
+##  1.Indicadores
 añadir_parrafo('Indicadores económicos', 4)
 doc.add_picture(r"Temp\Indicadores.png", width = Inches(6.5))
 añadir_parrafo('Grafica 1, Indicadores económicos para el ' + Trimestre + ' de ' + Año + ".", 2)
 
-## STN
+## 2.STN
 añadir_parrafo('Cargos y liquidación STN', 4)
 añadir_parrafo('El Sistema de Transmisión Nacional (STN) Es el Sistema Interconectado de Transmisión de energía eléctrica compuesto por el conjunto de líneas, con sus correspondientes módulos de conexión, que operan a tensiones iguales o superiores a 220 kV.')
 
@@ -260,7 +260,7 @@ añadir_parrafo('En ' + mesesSTR[2].lower() + ingSTNString[2] + AnalistaIngSTN3,
 doc.add_picture(r"Temp\STN_Demanda.png")
 añadir_parrafo('Grafica 5, Evolución de demanda energética nacional.', 2)
 
-## STR
+## 3.STR
 añadir_parrafo('Cargos y liquidación STR', 4)
 añadir_parrafo('El Sistema de Transmisión Regional (STR). Es el sistema de transporte de energía eléctrica compuesto por los Activos de Conexión del OR al STN y el conjunto de líneas, equipos y subestaciones, con sus equipos asociados, que operan en el Nivel de Tensión 4.')
 añadir_parrafo('En cuanto al STR, los meses de' + mesesSTR[0].lower() + ', ' + mesesSTR[1].lower() + ' y ' + mesesSTR[2].lower() + ' se liquidaron según las disposiciones establecidas en las Resoluciones CREG 015 de 2018 y CREG 157 de 2011. Los cargos del nivel de tensión 4 varían mensualmente según el comportamiento de los ingresos y la demanda. De igual manera, la liquidación de los ingresos de los Operadores de Red (OR) dependen de los cambios en los cargos de cada STR y de la demanda correspondiente del mes a liquidar. ', 1)
@@ -281,85 +281,85 @@ doc.add_picture(r"Temp\STR_Demanda.png")
 añadir_parrafo('Fig 8, Evolución de demanda energetica para el STR', 2)
 añadir_parrafo('Durante el trimestre, se realizó la emisión de las facturaciones para el STN. En el STR se efectuó la facturación para el mismo periodo, por concepto de remuneración de convocatorias tanto en el STR Norte como en el STR Centro-Sur y por concepto de Servicio LAC.')
 
-
-## SDL
-añadir_parrafo('Liquidación SDL', 4)
-añadir_parrafo('El Sistema de Distribución Local (SDL). Es el sistema de transporte de energía eléctrica compuesto por el conjunto de líneas y subestaciones, con sus equipos asociados, que operan a los Niveles de Tensión 3, 2 y 1 dedicados a la prestación del servicio en un mercado de comercialización.')
-añadir_parrafo('Desde la grafica 8 hasta la grafica 12, se puede ver la evolución de los cargos asociados al nivel de tensión 1 para los 29 operadores de red que conforman el SDL.')
-
-# SDL Oriente
-doc.add_picture(r"Temp\SDL_Cargos_Oriente.png")
-añadir_parrafo('Fig 8, Cargos para Mercados asociados a ADD Oriente', 2)
-
-# SDL Occidente
-doc.add_picture(r"Temp\SDL_Cargos_Occidente.png")
-añadir_parrafo('Fig 9, Cargos para Mercados asociados a ADD Occidente', 2)
-
-# SDL Centro
-doc.add_picture(r"Temp\SDL_Cargos_Centro.png")
-añadir_parrafo('Fig 10, Cargos para Mercados asociados a ADD Centro', 2)
-
-# SDL Sur
-doc.add_picture(r"Temp\SDL_Cargos_Sur.png")
-añadir_parrafo('Fig 11, Cargos para Mercados asociados a ADD Sur', 2)
-
-# SDL sin ADDs
-doc.add_picture(r"Temp\SDL_Cargos_sinADD.png")
-añadir_parrafo('Fig 12, Cargos para Mercados sin ADD asociada', 2)
-
-## ADDs
+## 4.ADDs
 añadir_parrafo('Liquidación ADDs', 4)
-
 
 añadir_parrafo('Según lo establecido en las Resoluciones CREG 058, 068, 070 de 2008 y las nuevas disposiciones establecidas en las Resolución CREG 116, 149 de 2010 y 133 de 2013, se ha efectuado la publicación de los cargos transitorios por nivel de tensión y la respectiva liquidación de las Áreas de Distribución (ADD) Oriente, Occidente, Sur y Centro.', 1)
 añadir_parrafo('En ' + mesesSTR[0].lower() + ', ' + mesesSTR[1].lower() + ' y ' + mesesSTR[2].lower() + ' de ' + str(Año) + ', se publicaron las liquidaciones ADD correspondientes a los meses de ' + MesesADD[2].lower() + ' de ' + str(AñosADD[8]) + ', ' + MesesADD[5].lower() + ' de ' + str(AñosADD[5]) + ' y ' + MesesADD[8].lower() + ' de ' + str(AñosADD[2]) + ' respectivamente.')
-añadir_parrafo('En la gráfica 12, la gráfica 13, la gráfica 14 y la gráfica 15 se puede ver la evolución de los ingresos reconocidos e ingresos de la ADD oriente, occidente, sur y centro respectivamente, en cada uno de los niveles de tensión 1, 2 y 3.')
+añadir_parrafo('En la gráfica 8, la gráfica 9, la gráfica 10 y la gráfica 11 se puede ver la evolución de los ingresos reconocidos e ingresos de la ADD oriente, occidente, sur y centro respectivamente, en cada uno de los niveles de tensión 1, 2 y 3.')
 
-# . Grafica ADD Oriente
+# Grafica ADD Oriente
 doc.add_picture(r"Temp\ADD_Oriente.png")
-añadir_parrafo('Fig 13, Ingreos ADD Oriente', 2)
+añadir_parrafo('Fig 8, Ingreos ADD Oriente', 2)
 
 # . Grafica ADD Occidente
 doc.add_picture(r"Temp\ADD_Occidente.png")
-añadir_parrafo('Fig 14, Ingreos ADD Occidente', 2)
+añadir_parrafo('Fig 9, Ingreos ADD Occidente', 2)
 
 # . Grafica ADD Centro
 doc.add_picture(r"Temp\ADD_Centro.png")
-añadir_parrafo('Fig 15, Ingreos ADD Centro', 2)
+añadir_parrafo('Fig 10, Ingreos ADD Centro', 2)
 
 # . Grafica ADD Sur
 doc.add_picture(r"Temp\ADD_Sur.png")
-añadir_parrafo('Fig 16, Ingreos ADD Sur', 2)
+añadir_parrafo('Fig 11, Ingreos ADD Sur', 2)
 
-## Calidad SDL
+## 5.SDL
+añadir_parrafo('Liquidación SDL', 4)
+añadir_parrafo('El Sistema de Distribución Local (SDL). Es el sistema de transporte de energía eléctrica compuesto por el conjunto de líneas y subestaciones, con sus equipos asociados, que operan a los Niveles de Tensión 3, 2 y 1 dedicados a la prestación del servicio en un mercado de comercialización.')
+añadir_parrafo('Desde la grafica 12 hasta la grafica 16, se puede ver la evolución de los cargos asociados al nivel de tensión 1 para los 29 operadores de red que conforman el SDL durante el ' + Trimestre + ' del año ' + Año + '.')
+
+# SDL Oriente
+doc.add_picture(r"Temp\SDL_Cargos_Oriente.png")
+añadir_parrafo('Fig 12, Evolución de cargo para nivel de tenión 1 para ORs asociados a ADD Oriente', 2)
+
+# SDL Occidente
+doc.add_picture(r"Temp\SDL_Cargos_Occidente.png")
+añadir_parrafo('Fig 13, Evolución de cargo para nivel de tenión 1 para ORs asociados a ADD Occidente', 2)
+
+# SDL Centro
+doc.add_picture(r"Temp\SDL_Cargos_Centro.png")
+añadir_parrafo('Fig 14, Evolución de cargo para nivel de tenión 1 para ORs asociados a ADD Centro', 2)
+
+# SDL Sur
+doc.add_picture(r"Temp\SDL_Cargos_Sur.png")
+añadir_parrafo('Fig 15, Evolución de cargo para nivel de tenión 1 para ORs asociados a ADD Sur', 2)
+
+# SDL sin ADDs
+doc.add_picture(r"Temp\SDL_Cargos_sinADD.png")
+añadir_parrafo('Fig 16, Evolución de cargo para nivel de tenión 1 para ORs sin ADD asociada', 2)
+
+## 6.Calidad SDL
 añadir_parrafo('Calidad del SDL', 4)
+añadir_parrafo('Para el proceso de Calidad en el SDL se calculan los índices basados en la cantidad de incidentes presentados en el sistema dentro de un mercado de comercializacion especifico y la duracion de los mismos')
 
 # . Grafica Calidad Inidcadores Globales
 doc.add_picture(r"Temp\Calidad_SDL.png")
-añadir_parrafo('Fig 16, Evolución de SAIDI y SAIFI a nivel pais.', 2)
+añadir_parrafo('Fig 17, Evolución de SAIDI y SAIFI a nivel pais.', 2)
 
-## CPROG
+## 7.CPROG
 añadir_parrafo('Cargo y Liquidación CPROG', 4)
+añadir_parrafo('Cargo por concepto del plan de reducción de pérdidas no técnicas que se traslada a los usuarios regulados y no regulados del mercado de comercialización.')
 
 # . Grafica CPROG ADD Oriente
 doc.add_picture(r"Temp\CPROG_Oriente.png")
-añadir_parrafo('Fig 16, Evolución de cargo CPROG para ORs asociados a la ADD Oriente', 2)
+añadir_parrafo('Fig 18, Evolución de cargo CPROG para ORs asociados a la ADD Oriente', 2)
 
 # . Grafica CPROG ADD Occidente
 doc.add_picture(r"Temp\CPROG_Occidente.png")
-añadir_parrafo('Fig 16, Evolución de cargo CPROG para ORs asociados a la ADD Occidente', 2)
+añadir_parrafo('Fig 19, Evolución de cargo CPROG para ORs asociados a la ADD Occidente', 2)
 
 # . Grafica CPROG ADD Centro
 doc.add_picture(r"Temp\CPROG_Centro.png")
-añadir_parrafo('Fig 16, Evolución de cargo CPROG para ORs asociados a la ADD Centro', 2)
+añadir_parrafo('Fig 20, Evolución de cargo CPROG para ORs asociados a la ADD Centro', 2)
 
 # . Grafica CPROG ADD Sur
 doc.add_picture(r"Temp\CPROG_Sur.png")
-añadir_parrafo('Fig 16, Evolución de cargo CPROG para ORs asociados a la ADD Sur', 2)
+añadir_parrafo('Fig 21, Evolución de cargo CPROG para ORs asociados a la ADD Sur', 2)
 
 # . Grafica CPROG sin ADD
 doc.add_picture(r"Temp\CPROG_sinADD.png")
-añadir_parrafo('Fig 16, Evolución de cargo CPROG para ORs sin ADD asociada', 2)
+añadir_parrafo('Fig 22, Evolución de cargo CPROG para ORs sin ADD asociada', 2)
 
 ## Document Export
 
