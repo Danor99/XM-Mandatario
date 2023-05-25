@@ -7,7 +7,20 @@
 # 
 #
 # Realizado por: Daniel Orozco Restrepo - Danor
-# Fecha: 20/04/2023
+# Codigo = 65576
+# Fecha de la 1.0: 23/05/2023
+#
+# 1. FUNCIONES AUXILIARES
+# 2. Interfaz de usuario
+# 3. Indicadores
+# 4. STN
+# 5. STR
+# 6. ADDs
+# 7. Convocatorias STN y STR
+# 8. SDL
+# 9. CPROG
+# 10. Calidad SDL
+# 11. Analisis STN
 
 
 import numpy as np
@@ -29,6 +42,7 @@ tqdm.pandas()
 ## Conexion a SQLite y extraccion de las 4 bases de datos
 con = sqlite3.connect("variablesDB.db")
 
+# Maximos regisros disponibles en SQLite o base de datos local
 strdf = pd.read_sql_query("SELECT * FROM variablesSTR", con)
 stndf = pd.read_sql_query("SELECT * FROM variablesSTN", con)
 addsdf = pd.read_sql_query("SELECT * FROM variablesADDS", con)
@@ -96,36 +110,44 @@ def add_months(start_date, delta_period):
   end_date = start_date + relativedelta(months=delta_period)
   return end_date
 
-# Funcion de grafica
+# Funcion de graficas STN y STR
 def realizar_grafica(GraficaDF, name = "SinNombre", title = 'Sin titulo', tamañoFig = (6,4), tipoG = 'none'):
+    # Eje para graifcar grafica en barras
     ax = GraficaDF.plot.bar(rot=0, color = ['#440099', '#FF6A13', '#75787B'], figsize = tamañoFig)
     if len(GraficaDF.columns) > 1:
+        # Hallar maximo absoluto del DF
         max_value = GraficaDF.max().max()
         min_value = GraficaDF.min().min()
     else:
+        # Hallar minimo absoluto del DF
         max_value = GraficaDF.max()
         min_value = GraficaDF.min()
+    
+    # Valores para ajuste de ejes
     scale = max_value*0.1
     den = 1000000000
-
-    ndecimales = math.log(max_value,10) * -1
-    tickPpal = int(round_up(max_value,round(ndecimales,0)))
-    ytick_val = [tickPpal*0.2, tickPpal*0.4, tickPpal*0.6, tickPpal*0.8, tickPpal]
-    tick_lab2 = list(map(lambda x: int(x/den), ytick_val))
+    
+    # Ajuste de formato para DF´s con cifras muy grandes
+    ndecimales = math.log(max_value,10) * -1 # Logaritmo en base 10 para obtener numero de decimales
+    tickPpal = int(round_up(max_value,round(ndecimales,0))) # Ajustar el ultimo cero para obtener graficas con mayor zoom a los valores
+    ytick_val = [tickPpal*0.2, tickPpal*0.4, tickPpal*0.6, tickPpal*0.8, tickPpal] # Valores base para los valores de eje y en grafica
+    tick_lab2 = list(map(lambda x: int(x/den), ytick_val)) 
     ytick_lab = list(map(lambda x: str(x) + 'milM', tick_lab2))
 
+    # Contribuciones tiene el tickPpal al 1 en los decimales dado que varia bastante entre trimestres
     if tipoG == 'Contribuciones':
-        ajuste_dis_FOES = [-0.25,0.75,1.75]
+        ajuste_dis_FOES = [-0.25,0.75,1.75] # Posicion de los marcadores para cada columna en el eje X (no varia)
         ajuste_dis_PRONE = [-0.09,0.91,1.91]
         ajuste_dis_FAER = [0.09,1.09,2.09]
+        tickPpal = int(round_up(max_value,round(ndecimales,1)))
         for idx in range(len(GraficaDF)):
-            ax.text(ajuste_dis_FOES[idx], GraficaDF['FOES'][idx] + scale*0.05 , round(GraficaDF['FOES'][idx]/den,1), size = 9)
+            ax.text(ajuste_dis_FOES[idx], GraficaDF['FOES'][idx] + scale*0.05 , round(GraficaDF['FOES'][idx]/den,1), size = 9) # Posicion de los marcadores para cada columna en el eje Y (si varia)
             ax.text(ajuste_dis_PRONE[idx], GraficaDF['PRONE'][idx] + scale*0.05 , round(GraficaDF['PRONE'][idx]/den,1), size = 9)
             ax.text(ajuste_dis_FAER[idx], GraficaDF['FAER'][idx] + scale*0.05 , round(GraficaDF['FAER'][idx]/den,1), size = 9)
         ytick_val = [tickPpal*0.7, tickPpal*0.8, tickPpal*0.9, tickPpal]
         tick_lab2 = list(map(lambda x: int(x/den), ytick_val))
         ytick_lab = list(map(lambda x: str(x) + 'milM', tick_lab2))
-        plt.ylim(tickPpal*0.7, tickPpal*1.05)
+        plt.ylim(tickPpal*0.7, tickPpal*1.05) # Limite de vista en la grafica para el eje Y (para hacer las graficas mas pequeñas y las barras menos largas)
 
     if tipoG == 'Ingresos STN':
         ajuste_dis_1 = [-0.25,0.75,1.75]
@@ -167,9 +189,9 @@ def realizar_grafica(GraficaDF, name = "SinNombre", title = 'Sin titulo', tamañ
         plt.ylim(tickPpal*0.1, tickPpal*0.55)
 
     
-    plt.yticks(ytick_val, ytick_lab)
+    plt.yticks(ytick_val, ytick_lab) # Aplicar a cada label la posicion que le corresponde = value
     plt.title(title)
-    save = plt.savefig(r"Temp\{name}.png".format(name=name))
+    save = plt.savefig(r"Temp\{name}.png".format(name=name)) # Se guarda cada grafica en la carpeta de Temp
     return save
 
 
@@ -210,10 +232,10 @@ def realizar_grafica(GraficaDF, name = "SinNombre", title = 'Sin titulo', tamañ
 
 ## Variables Iniciales
 
-plt.rcParams.update({'figure.max_open_warning': 0})
+plt.rcParams.update({'figure.max_open_warning': 0}) # Necesario para graficar tantas cosas en el mismo programa
 
-Fecha_inicio = "2023-01-01"
-Fecha_final = "2023-03-31"
+Fecha_inicio = "2022-07-01" # Fechas de inicio en caso de no seleccionar nada en la interfaz
+Fecha_final = "2022-09-30"
 
 print("Fecha Inicial Elegida: " + Fecha_inicio)
 print("Fecha Final Elegida: " + Fecha_final)
@@ -221,14 +243,12 @@ print("Fecha Final Elegida: " + Fecha_final)
 
 colorppal = ['#440099', '#FF6A13', '#75787B'] # Colores principales
 colorlist = ['#440099', '#AF97CC', '#FF6A13', '#66554B', '#75787B', '#8097AD']
-colorfull = ['#440099', '#AF97CC', '#FF6A13', '#66554B', '#75787B', '#8097AD', '#6EB4FA', '#CC540E']
+colorfull = ['#440099', '#AF97CC', '#FF6A13', '#66554B', '#75787B', '#8097AD', '#6EB4FA', '#CC540E'] # Colores basados en paleta de colores de adobe
 
+# DF para STN e Indicadores (en misma tabla de BD local)
 
-## Graficas del STN
-
-prep_df(stndf)
+prep_df(stndf) # Preparamos el DF de BD local
 stndf = stndf.loc[(stndf["fecha"] <= Fecha_final )].reset_index()
-
 
 
 stndf["Ingreso Neto Sin Contribuciones"] = stndf["ContribucionesSinC"].apply(format)
@@ -259,65 +279,70 @@ Analisis_Ingresos_DF = stndf.head(4).sort_values("fecha")[["Mes","Ingreso Neto S
 # print(Grafica_IPPyIPC_DF)
 # title_font = {'fontname' : 'Helvetica'}
 
-
+### --------------------- RECORDAR EJECUTAR PROCESADOR DE IMAGENES ---------------------
 plt.style.use('seaborn-darkgrid')
-ax1, ax2 = Grafica_IPPyIPC_DF.plot.line(subplots= True, marker = 'o', color = ['#440099', '#FF6A13'], linewidth = 2, fontsize = 13, figsize = (6.5,6))
+ax1, ax2 = Grafica_IPPyIPC_DF.plot.line(subplots= True, marker = 'o', color = ['#440099', '#FF6A13'], linewidth = 2, fontsize = 13, figsize = (6,6))
 plt.xlabel('Mes', fontsize = 14)
 ajuste_dis_IPPeIPC = [-0.05,0.95,1.95]
 for idx in range(len(Grafica_IPPyIPC_DF)):
-    ax1.text(ajuste_dis_IPPeIPC[idx], Grafica_IPPyIPC_DF['IPP'][idx] - 0.4, round(Grafica_IPPyIPC_DF['IPP'][idx]), size = 12)
-    ax2.text(ajuste_dis_IPPeIPC[idx], Grafica_IPPyIPC_DF['IPC'][idx] + 0.2, round(Grafica_IPPyIPC_DF['IPC'][idx]), size = 12)
-ax1.set_ylabel('Valor IPP', fontsize = 15)
-ax2.set_ylabel('Valor IPC', fontsize = 15)
+    ax1.text(ajuste_dis_IPPeIPC[idx], Grafica_IPPyIPC_DF['IPP'][idx] - 0.15, round(Grafica_IPPyIPC_DF['IPP'][idx]), size = 12)
+    ax2.text(ajuste_dis_IPPeIPC[idx], Grafica_IPPyIPC_DF['IPC'][idx] + 0.15, round(Grafica_IPPyIPC_DF['IPC'][idx]), size = 12)
+# ax1.set_ylabel('Valor IPP', fontsize = 15)
+# ax2.set_ylabel('Valor IPC', fontsize = 15)
 ax1.set_title('IPP e IPC', fontsize = 15)
 ax1.grid()
 ax2.grid()
+ax1.legend(fontsize = 13)
+ax2.legend(fontsize = 13)
 plt.xticks(fontsize = 14)
-plt.savefig(r"Temp\{name}.png".format(name="IPPeIPC"))
+plt.xlabel(" ")
+plt.savefig(r"Temp\{name}.png".format(name="IPPeIPC"), bbox_inches='tight')
 
 trimestre = get_meses_trimestre(Grafica_IPPyIPC_DF)
 año = get_año(stndf)
 
-
 ## Grafica 1.2 - IPPI y TCRM
-ax1, ax2 = Grafica_IPPIyTCRM_DF.plot.line(subplots= True, marker = 'o', color = ['#440099', '#FF6A13'], linewidth = 2, fontsize = 13, figsize = (6.5,6))
+ax1, ax2 = Grafica_IPPIyTCRM_DF.plot.line(subplots= True, marker = 'o', color = ['#440099', '#FF6A13'], linewidth = 2, fontsize = 13, figsize = (6,6))
 plt.xlabel('Mes')
 ajuste_dis_IPPIyTCRM = [-0.05,0.95,1.95]
 for idx in range(len(Grafica_IPPIyTCRM_DF)):
-    ax1.text(ajuste_dis_IPPIyTCRM[idx], Grafica_IPPIyTCRM_DF['IPPI'][idx] - 0.4, round(Grafica_IPPIyTCRM_DF['IPPI'][idx]), size = 12)
-    ax2.text(ajuste_dis_IPPIyTCRM[idx], Grafica_IPPIyTCRM_DF['TCRM'][idx] + 10, round(Grafica_IPPIyTCRM_DF['TCRM'][idx]), size = 12)
-ax1.set_ylabel('Valor IPP Industria', fontsize = 14)
-ax2.set_ylabel('Valor TCRM', fontsize = 14)
+    ax1.text(ajuste_dis_IPPIyTCRM[idx], Grafica_IPPIyTCRM_DF['IPPI'][idx] - 0.075, round(Grafica_IPPIyTCRM_DF['IPPI'][idx]), size = 12)
+    ax2.text(ajuste_dis_IPPIyTCRM[idx], Grafica_IPPIyTCRM_DF['TCRM'][idx] + 5, round(Grafica_IPPIyTCRM_DF['TCRM'][idx]), size = 12)
+# ax1.set_ylabel('Valor IPP Industria', fontsize = 14)
+# ax2.set_ylabel('Valor TCRM', fontsize = 14)
 ax1.set_title('IPP Industria y TCRM', fontsize = 14)
 ax1.grid()
 ax2.grid()
+ax1.legend(fontsize = 13)
+ax2.legend(fontsize = 13)
 plt.xticks(fontsize = 14)
-plt.savefig(r"Temp\{name}.png".format(name="IPPIyTCRM"))
+plt.xlabel(" ")
+plt.savefig(r"Temp\{name}.png".format(name="IPPIyTCRM"), bbox_inches='tight')
 
 ## Graficas alternativas de Indicadores
 # Los IP´s
 
-ax = Grafica_IPP_IPCyIPPI_DF.plot.line(marker = 'o', color = ['#440099', '#FF6A13', '#75787B'], linewidth = 2)
-plt.xlabel('Mes')
-ajuste_dis_IPP_IPC_yIPPI = [-0.05,0.95,1.95]
-for idx in range(len(Grafica_IPP_IPCyIPPI_DF)):
-    ax.text(ajuste_dis_IPP_IPC_yIPPI[idx], Grafica_IPP_IPCyIPPI_DF['IPP'][idx] - 3.5, round(Grafica_IPP_IPCyIPPI_DF['IPP'][idx]), size = 12)
-    ax.text(ajuste_dis_IPP_IPC_yIPPI[idx], Grafica_IPP_IPCyIPPI_DF['IPC'][idx] + 1, round(Grafica_IPP_IPCyIPPI_DF['IPC'][idx]), size = 12)
-    ax.text(ajuste_dis_IPP_IPC_yIPPI[idx], Grafica_IPP_IPCyIPPI_DF['IPPI'][idx] - 3.5, round(Grafica_IPP_IPCyIPPI_DF['IPPI'][idx]), size = 12)
-ax.set_title('Indicadores', fontsize = 14)
-ax.grid()
+# ax = Grafica_IPP_IPCyIPPI_DF.plot.line(marker = 'o', color = ['#440099', '#FF6A13', '#75787B'], linewidth = 2)
+# plt.xlabel('Mes')
+# ajuste_dis_IPP_IPC_yIPPI = [-0.05,0.95,1.95]
+# for idx in range(len(Grafica_IPP_IPCyIPPI_DF)):
+#     ax.text(ajuste_dis_IPP_IPC_yIPPI[idx], Grafica_IPP_IPCyIPPI_DF['IPP'][idx] - 3.5, round(Grafica_IPP_IPCyIPPI_DF['IPP'][idx]), size = 12)
+#     ax.text(ajuste_dis_IPP_IPC_yIPPI[idx], Grafica_IPP_IPCyIPPI_DF['IPC'][idx] + 1, round(Grafica_IPP_IPCyIPPI_DF['IPC'][idx]), size = 12)
+#     ax.text(ajuste_dis_IPP_IPC_yIPPI[idx], Grafica_IPP_IPCyIPPI_DF['IPPI'][idx] - 3.5, round(Grafica_IPP_IPCyIPPI_DF['IPPI'][idx]), size = 12)
+# ax.set_title('Indicadores', fontsize = 14)
+# ax.grid()
 
-plt.savefig(r"Temp\{name}.png".format(name="Indicadores_alt"))
+# plt.savefig(r"Temp\{name}.png".format(name="Indicadores_alt"))
 
-# TCRM
-ax = Grafica_TCRM_DF.plot.line(marker = 'o', color = '#440099', linewidth = 2)
-plt.xlabel('Mes')
-ajuste_dis_TCRM = [-0.05,0.95,1.95]
-for idx in range(len(Grafica_IPPIyTCRM_DF)):
-    ax.text(ajuste_dis_TCRM[idx], Grafica_TCRM_DF['TCRM'][idx] + 5, round(Grafica_TCRM_DF['TCRM'][idx]), size = 12)
-ax.set_title('Indicador TCRM', fontsize = 14)
-ax.grid()
-plt.savefig(r"Temp\{name}.png".format(name="TCRM_alt"))
+# # TCRM
+# ax = Grafica_TCRM_DF.plot.line(marker = 'o', color = '#440099', linewidth = 2)
+# plt.xlabel('Mes')
+# ajuste_dis_TCRM = [-0.05,0.95,1.95]
+# for idx in range(len(Grafica_IPPIyTCRM_DF)):
+#     ax.text(ajuste_dis_TCRM[idx], Grafica_TCRM_DF['TCRM'][idx] + 5, round(Grafica_TCRM_DF['TCRM'][idx]), size = 12)
+# ax.set_title('Indicador TCRM', fontsize = 14)
+# ax.grid()
+# plt.savefig(r"Temp\{name}.png".format(name="TCRM_alt"))
 
 ## STN
 
@@ -335,7 +360,7 @@ plt.grid()
 plt.savefig(r"Temp\{name}.png".format(name="STN_Cargos_T"))
 
 ## Grafica 3 - Ingresos sin y con contribuciones
-realizar_grafica(Grafica_IngresosSTN_DF, "STN_Ingresos", 'Ingresos STN (COP)', tipoG = 'Ingresos STN')
+realizar_grafica(Grafica_IngresosSTN_DF, "STN_Ingresos", 'Ingresos STN (COP)', tipoG = 'Ingresos STN') # Invocar funciones de arriba
 
 ## Grafica 4 - Contribuciones
 realizar_grafica(Grafica_ContribucionesDF, "STN_Contribuciones", 'Contribuciones (COP)', tipoG = 'Contribuciones')
@@ -343,11 +368,9 @@ realizar_grafica(Grafica_ContribucionesDF, "STN_Contribuciones", 'Contribuciones
 ## Grafica 5 - Demanda STN
 realizar_grafica(Grafica_DemandaSTN_DF, "STN_Demanda", "Demanda STN (kWh)", tipoG = 'Demanda STN')
 
-# Get mes max de contribuciones (MM)
-maxContribuciones = Grafica_ContribucionesDF.max().max()
-MMContr = Grafica_ContribucionesDF[Grafica_ContribucionesDF['FOES']==maxContribuciones].index.values[0]
 
 ## Graficas del STR
+# (nada que no se halla hecho en el STN)
 prep_df(strdf)
 strdf = strdf.loc[(strdf["fecha"] <= Fecha_final )].reset_index()
 
@@ -403,33 +426,38 @@ MM_Demanda_STR = Grafica_DemandaSTR_DF[Grafica_DemandaSTR_DF['Demanda STR Centro
 
 
 ## Graficas ADDs
+# Para ADDs hay un problema y es que se tienen que buscar registros de dos meses para atras.
+# Esto dado que las publicaciones de las liquidaciones atrasadas m-2.
 
-Fecha_inicio_d = datetime.strptime(Fecha_inicio, '%Y-%m-%d')
+Fecha_inicio_d = datetime.strptime(Fecha_inicio, '%Y-%m-%d') # Se cambia a formato datetime las fechas escogidas en intefaz
 Fecha_final_d = datetime.strptime(Fecha_final, '%Y-%m-%d')
 
-fecha_adds_m2_Ini = add_months(Fecha_inicio_d, -2)
+fecha_adds_m2_Ini = add_months(Fecha_inicio_d, -2) # Se restan dos meses a las fechas nuevas para la consulta
 fecha_adds_m2_Fin = add_months(Fecha_final_d, -2)
 
 prep_df(addsdf)
-addsdf = addsdf.loc[(addsdf["fecha"] <= Fecha_final )].reset_index().drop(columns = ["index"])
+addsdf = addsdf.loc[(addsdf["fecha"] <= Fecha_final )].reset_index().drop(columns = ["index"]) # Igual se deja el DF hasta el tope de ser necesarias las nuevas fechas
 
 addsdf["NT"] = addsdf["NivelTension"]
 addsdf["Ingreso Real"] = addsdf["IngR"].apply(format)
 addsdf["Ingreso por ADD"] = addsdf["IngADD"].apply(format)
 
 # Funcion Graficas ADDs
+# Para realizar las graficas de ADDs se usa la antigua funcion de realizar_grafica del STN y STR pero con modificaciones
 def realizar_grafica_ADD(Area, ImgName, titleADD):
-    add1 = (addsdf[(addsdf["fecha"] >= fecha_adds_m2_Ini) & (addsdf["fecha"] <= fecha_adds_m2_Fin)])
-    add1 = add1[add1['Area'] == Area ].sort_values(by='fecha', ascending = False).head(9)
+    add1 = (addsdf[(addsdf["fecha"] >= fecha_adds_m2_Ini) & (addsdf["fecha"] <= fecha_adds_m2_Fin)]) # filtrado y organizado por fecha
+    add1 = add1[add1['Area'] == Area ].sort_values(by='fecha', ascending = False).head(9) # Top 9 entradas de dicha fecha (por si aparece otro registro que no pertenece (nada raro en cargosADD))
     add_DF1 = add1.sort_values("fecha")[["Mes", "NT", "Ingreso Real", "Ingreso por ADD"]].set_index('Mes')
-    MesesADD = add_DF1.index.tolist()
+    MesesADD = add_DF1.index.tolist() # Necesario para doc de exporte
     AñosADD = add1["Año"].tolist()
-    add_DF = pd.pivot_table(add_DF1, values = ['Ingreso Real','Ingreso por ADD'], index = ['Mes', 'NT'])
-    realizar_grafica(add_DF, ImgName, titleADD, (6,4))
+    add_DF = pd.pivot_table(add_DF1, values = ['Ingreso Real','Ingreso por ADD'], index = ['Mes', 'NT']) # Pivoteamos la tabla para obtener los datos en orden
+    realizar_grafica(add_DF, ImgName, titleADD, (6,4)) 
     xticks = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     xticks_lab = ['NT1', 'NT2 \n' + MesesADD[2],
                 'NT3','NT1', 'NT2 \n' + MesesADD[5],
                 'NT3','NT1', 'NT2 \n' + MesesADD[8], 'NT3']
+
+    # La grafica tiene doble indicie en el eje x, para mostrar los ingresos de los 3 NT
 
     plt.xticks(xticks, xticks_lab)
     plt.xlabel(" ")
@@ -437,23 +465,27 @@ def realizar_grafica_ADD(Area, ImgName, titleADD):
     save = plt.savefig(r"Temp\{name}.png".format(name=ImgName))
     return save, MesesADD, AñosADD
 
-realizar_grafica_ADD('ADD Oriente', 'ADD_Oriente', 'Ingresos a OR de ADD Oriente (COP)')
+realizar_grafica_ADD('ADD Oriente', 'ADD_Oriente', 'Ingresos a OR de ADD Oriente (COP)') # Invocar funciones
 realizar_grafica_ADD('ADD Occidente', 'ADD_Occidente', 'Ingresos a OR de ADD Occidente (COP)')
 realizar_grafica_ADD('ADD Centro', 'ADD_Centro', 'Ingresos a OR de ADD Centro (COP)')
 realizar_grafica_ADD('ADD Sur', 'ADD_Sur', 'Ingresos a OR de ADD Sur (COP)')
+# Area es el parametro por el cual se filtra en la columna de del ADD asociado
+# ImgName es como se nombra la grafica y tittleADD es el titulo que se le pone a la grafica
 
-a, MesesADD, AñosADD = realizar_grafica_ADD('ADD Centro', 'ADD_Centro', 'Ingresos a OR de ADD Centro (COP)')
+a, MesesADD, AñosADD = realizar_grafica_ADD('ADD Centro', 'ADD_Centro', 'Ingresos a OR de ADD Centro (COP)') # Valores necesarios para el doc de exporte
 
 
 ## Conovcatorias STN y SDL
+# En convocatorias se buscan las anualidades que empiezan para el periodo seleccionado
+# CUIDADO! si se selecciona la fecha inicial o final en el dia equivocado es altamente probable que no reguistre varias convocatorias
 
-convdf["FechaInicial"] = pd.to_datetime(convdf["FechaInicial"])
-convdf["FechaFinal"] = pd.to_datetime(convdf["FechaFinal"])
+convdf["FechaInicial"] = pd.to_datetime(convdf["FechaInicial"]) # Cambiar toda la columna de conv de fechas a datetimes
+convdf["FechaFinal"] = pd.to_datetime(convdf["FechaFinal"]) # x2
 
 FechaFin_conv = Fecha_final
 FechaIni_conv = Fecha_inicio
 
-ConvQueInician_DF = convdf.loc[(convdf["FechaInicial"] >= FechaIni_conv ) & (convdf["FechaInicial"] <= FechaFin_conv )].reset_index()
+ConvQueInician_DF = convdf.loc[(convdf["FechaInicial"] >= FechaIni_conv ) & (convdf["FechaInicial"] <= FechaFin_conv )].reset_index() # Fitrar el DF de la BD local para esas fechas seleccionadas
 
 ConvQueInician_DF["MesIni"]= ConvQueInician_DF["FechaInicial"].dt.month_name(locale='Spanish')
 ConvQueInician_DF["AñoIni"]= ConvQueInician_DF["FechaInicial"].dt.year
@@ -461,50 +493,72 @@ ConvQueInician_DF["AñoIni"]= ConvQueInician_DF["FechaInicial"].dt.year
 
 ConvList = []
 
-for i in range(len(ConvQueInician_DF)):
+for i in range(len(ConvQueInician_DF)): # Si la convocatoria es del STR o del STN
     if "STR" in ConvQueInician_DF.at[i,"Nombre"]:
         ConvString = 'En el STR a partir de ' + ConvQueInician_DF.at[i,"MesIni"].lower() + ' del ' + str(ConvQueInician_DF.at[i,"AñoIni"]) + ', se inició la anualidad número '   + ConvQueInician_DF.at[i,"NAnualidad"]  + ' utilizada para calcular la remuneración del proyecto '  + ConvQueInician_DF.at[i,"Nombre"]  + " (" + ConvQueInician_DF.at[i,"Descripcion"] + ")" + ' conforme a lo establecido en la ' + ConvQueInician_DF.at[i,"Resolucion"]
     else:
         ConvString = 'En el STN a partir de ' + ConvQueInician_DF.at[i,"MesIni"].lower() + ' del ' + str(ConvQueInician_DF.at[i,"AñoIni"]) + ', se inició la anualidad número '   + ConvQueInician_DF.at[i,"NAnualidad"]  + ' utilizada para calcular la remuneración del proyecto '  + ConvQueInician_DF.at[i,"Nombre"]  + " (" + ConvQueInician_DF.at[i,"Descripcion"] + ")" + ' conforme a lo establecido en la ' + ConvQueInician_DF.at[i,"Resolucion"]
-    ConvList.append(ConvString)
+    ConvList.append(ConvString) # ConvList es la lista de cada string de convocatorias que va en el documento de exporte  (se elimina el valor en USD o COP)
 
 ## Graficas SDL
 
-sdldf["fecha"] = pd.to_datetime(sdldf["fecha"])
-sdldf["fecha"] = sdldf.progress_apply(lambda row: add_months(row["fecha"], 2), axis = 1)
+sdldf["fecha"] = pd.to_datetime(sdldf["fecha"]) # Nada nuevo
+sdldf["fecha"] = sdldf.progress_apply(lambda row: add_months(row["fecha"], 2), axis = 1) 
+# El Query esta tomado desde CargosADD, que da los cargos 2 meses atrasados para darlos con la liquidacion, pero en realidad son 2 meses adelante
+# Si no me crees, que es normal, yo tampoco lo haría, puedes revisar el query de Carper para verificar que las fechas con los cargos ahí esten bien
 
 prep_df(sdldf)
 
-Areas_MercadoDF = (sdldf[(sdldf["NT"] == "1") & (sdldf["fecha"] == Fecha_inicio)])[["Area", "Mercado"]]
+Areas_MercadoDF = (sdldf[(sdldf["NT"] == "1") & (sdldf["fecha"] == Fecha_inicio)])[["Area", "Mercado"]] # Solamente se grafica el DT1 y el DTUN en caso ser ADD
 
-prep_df(sdldfsinADD)
+prep_df(sdldfsinADD) # Este es el DF de los OR sin ADD, como no tienen DTUN, el DF debe ser diferente
 sdldfsinADD= (sdldfsinADD[(sdldfsinADD["fecha"] >= Fecha_inicio) & (sdldfsinADD["fecha"] <= Fecha_final)])
 sdldfsinADD = sdldfsinADD.merge(Areas_MercadoDF, on = "Mercado", how = "outer")[["fecha", "Mercado", "Tipo", "Comercializador", "DT1", "Mes", "Año"]].reset_index()
 
+fecha_entrada_tolima = datetime.strptime('2023-07-01', '%Y-%m-%d')
 
-def realizar_grafica_SDL(GraficaDF, AreaName = 'ADD Centro', ImgName = "No name", title = "No Title", nORs = 7):
-    if AreaName == "NaN":
+def realizar_grafica_SDL(GraficaDF, AreaName = 'ADD Centro', ImgName = "No name", title = "No Title", nORs = 7): # Necesitamos el numero de ORs para los lab y numero de graficas
+    # Si algun dia hay OR nuevo se puede modificar desde aqui
+    if AreaName == "NaN": 
         df1 = (GraficaDF[(GraficaDF["fecha"] >= Fecha_inicio) & (GraficaDF["fecha"] <= Fecha_final)])
-        df1 = (GraficaDF[(GraficaDF["Comercializador"] == "None") & (GraficaDF["Tipo"] == "6")]).sort_values(["fecha", "Mercado"], ascending = False).reset_index()[["fecha", "Mes", "Mercado", "Tipo", "DT1"]].reset_index()
-        ListMerc = df1["Mercado"].head(nORs).tolist()
-        df11 = df1[df1["Mercado"] == ListMerc[0]]
-        ax = df11.plot.line(x = "Mes", y = "DT1", label = ListMerc[0], color = colorfull[0], marker = '.', figsize = (7,4))
+        df1 = (GraficaDF[(GraficaDF["Comercializador"] == "None") & (GraficaDF["Tipo"] == "6")]).sort_values(["fecha", "Mercado"]).reset_index()[["fecha", "Mes", "Mercado", "Tipo", "DT1"]].reset_index()
+        if Fecha_inicio_d < fecha_entrada_tolima:
+            df_dtun = df1.filter(items = [0,4,9], axis = 0)
+            nORs = 5
+        ListMerc = df1["Mercado"].head(nORs).tolist() # Se crea lista de los mercados fuera de ADD
+        df11 = df1[df1["Mercado"] == ListMerc[0]] # Se grafica para el primer mercado la linea y se crea el eje ax
+        ax = df11.plot.line(x = "Mes", y = "DT1", label = ListMerc[0], color = colorfull[0], marker = '.', figsize = (6,4))
         for i in range(nORs - 1):
             dfi = df1[df1["Mercado"] == ListMerc[i+1]]
-            dfi.plot(x = "Mes", y = "DT1", ax=ax, label = ListMerc[i+1], color = colorfull[i+1], marker = '.', figsize = (7,4))
-        xticks = [1,5.5,9.5]
+            dfi.plot(x = "Mes", y = "DT1", ax=ax, label = ListMerc[i+1], color = colorfull[i+1], marker = '.', figsize = (6,4))
+            # Se grafica las otras lineas para los otros mercados
+        # xticks = [1,5.5,9.5]
 
     else:
-        df1 = (GraficaDF[(GraficaDF["Area"] == AreaName) & (GraficaDF["fecha"] >= Fecha_inicio) & (GraficaDF["fecha"] <= Fecha_final)]).sort_values(["fecha", "Mercado"], ascending = False)[["fecha", "Mes", "Mercado", "DT", "DtUN", "NT"]]
+        df1 = (GraficaDF[(GraficaDF["Area"] == AreaName) & (GraficaDF["fecha"] >= Fecha_inicio) & (GraficaDF["fecha"] <= Fecha_final)]).sort_values(["fecha", "Mercado"])[["fecha", "Mes", "Mercado", "DT", "DtUN", "NT"]]
         df1 = df1[df1["NT"] == '1'].reset_index()[["Mes", "Mercado", "DT", "DtUN"]].reset_index()
-        df_dtun = df1.drop_duplicates(subset = ["DtUN"])
+
+        # Acá tenemos un problema para eliminar los duplicados de DtUN, dado que si se tiene el mismo DTUN para una ADD en diferentes meses se van a eliminar
+        # Ejemplo: Para ADD oriente en Nov-2022 tenemos duplicados entonces la grafica queda coja entonces toca crear una anomalia pa esto
+        # No solo eso, sino que ademas Tolima entra en Julio - 2022, haciendo mas dificil la lectura de DT - DTUN
+
+        if AreaName == 'ADD Oriente':
+            df_dtun = df1.filter(items = [0,5,10], axis = 0)
+            nORs = 5
+            if Fecha_final_d < fecha_entrada_tolima:
+                df_dtun = df1.filter(items = [0,4,9], axis = 0)
+                nORs = 4
+        else:
+            df_dtun = df1.drop_duplicates(subset = ["DtUN"])
+
         ListMerc = df1["Mercado"].head(nORs).tolist()
         df1[df1["Mercado"] == ListMerc[0]]
-        ax = df_dtun.plot(x='Mes', y='DtUN', label = "DtUN " + AreaName, linewidth = 3, figsize = (7,4), color = colorfull[0])
-        for i in range (nORs):
+        ax = df_dtun.plot(x='Mes', y='DtUN', label = "DtUN " + AreaName, linewidth = 3, figsize = (6,4), color = colorfull[0])
+        # Primero graficamos el DTUn para cada ADD, definiendo el eje ax
+        for i in range (nORs): # Luego graficamos cada una de las lineas consecuentes con el DT de cada mercado
             dfi = df1[df1["Mercado"] == ListMerc[i]]
-            dfi.plot(x = "Mes", y = "DT", kind = "line", ax=ax, label = ListMerc[i], color = colorfull[i+1], marker = '.', figsize = (7,4))
-        xticks = [3,10,17]
+            dfi.plot(x = "Mes", y = "DT", kind = "line", ax=ax, label = ListMerc[i], color = colorfull[i+1], marker = '.', figsize = (6,4))
+        # xticks = [3,10,17]
 
     # if AreaName == "ADD Sur":
     #     xticks = [0.5,8.5,15.5]
@@ -513,7 +567,7 @@ def realizar_grafica_SDL(GraficaDF, AreaName = 'ADD Centro', ImgName = "No name"
 
     # xticks_lab = [mesesSTR[0], mesesSTR[1], mesesSTR[2]]
     # plt.xticks(xticks, xticks_lab)
-    plt.legend(loc='lower center', bbox_to_anchor=(0.25, -0.6))
+    plt.legend(loc='lower center', bbox_to_anchor=(0.25, -0.6)) # Esto es para sacar los lab de la imagen, ya que sino pueden pisar las lineas
     # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='upper left', mode="expand", borderaxespad=0.)
     plt.title(title)
     plt.xlabel("Mes")
@@ -522,14 +576,16 @@ def realizar_grafica_SDL(GraficaDF, AreaName = 'ADD Centro', ImgName = "No name"
     return save
 
 realizar_grafica_SDL(sdldf, "ADD Centro",  "SDL_Cargos_Centro", 'Cargo DT1 y DTUN para ORs de ADD Centro (COP/kWh)',7)
-realizar_grafica_SDL(sdldf, "ADD Occidente", "SDL_Cargos_Occidente", 'Cargo DT1 y DTUN para ORs de ADD Occidente (COP/kWh)',5)
-realizar_grafica_SDL(sdldf, "ADD Oriente", "SDL_Cargos_Oriente", 'Cargo DT1 y DTUN para ORs de ADD Oriente (COP/kWh)',7)
+realizar_grafica_SDL(sdldf, "ADD Occidente", "SDL_Cargos_Occidente", 'Cargo DT1 y DTUN para ORs de ADD Occidente (COP/kWh)',7)
+realizar_grafica_SDL(sdldf, "ADD Oriente", "SDL_Cargos_Oriente", 'Cargo DT1 y DTUN para ORs de ADD Oriente (COP/kWh)',5)
 realizar_grafica_SDL(sdldf, "ADD Sur", "SDL_Cargos_Sur", 'Cargo DT1 y DTUN para ORs de ADD Sur (COP/kWh)',6)
 realizar_grafica_SDL(sdldfsinADD, "NaN", "SDL_Cargos_sinADD", 'Cargo DT1 para ORs sin ADD (COP/kWh)',4)
+# GraficaDF es el DF que se usa para graficar, Area es el nombre de la ADD a filtrar
+# ImgName y tittle son iguales que ADDs y nORs es el modificable para numero de ORs dentro de ADD
 
 
 ## CPROG
-
+# Basicamente lo mismo que el SDL pero mas sencillo
 prep_df(cprogdf)
 
 cprogdf_add = cprogdf.merge(Areas_MercadoDF, on = "Mercado", how = "outer")[["fecha", "Mercado", "Area", "CPROG", "Mes", "Año"]]
@@ -561,10 +617,11 @@ realizar_grafica_CPROG(cprogdf2, 'ADD Sur', 'CPROG_Sur', 'Cargo CPROG para ADD S
 realizar_grafica_CPROG(cprogdf2, 'NaN', 'CPROG_sinADD', 'Cargo CPROG para OR sin ADD (COP/kWh)',4)
 
 ## Calidad SDL
-
+# Los indicadores de Calidad se dan por mercado y se pueden separar tambien por grupos de ADD, pero el informe ya va por 20pgs
+# Es lo mismo que la funcion de realizar_grafica pero con la facilidad de que no hay numeros muy grandes
 prep_df(calidaddf)
 
-caldf = (calidaddf[(calidaddf["fecha"] >= Fecha_inicio) & (calidaddf["fecha"] <= Fecha_final)])[["SAIDI", "SAIFI", "Mes"]].set_index("Mes")
+caldf = (calidaddf[(calidaddf["fecha"] >= Fecha_inicio) & (calidaddf["fecha"] <= Fecha_final)]).sort_values("fecha")[["SAIDI", "SAIFI", "Mes"]].set_index("Mes")
 ax = caldf.plot.bar(rot = 0, color = ['#440099', '#FF6A13', '#75787B'], figsize = (5,5))
 ajuste_dis_1 = [-0.2,0.8,1.8]
 ajuste_dis_2 = [0.05,1.05,2.05]
@@ -576,18 +633,19 @@ save = plt.savefig(r"Temp\{name}.png".format(name="Calidad_SDL"))
 
 
 
-## Analisis en STN (FOES b)
+## Analisis en STN (FOES b)}
+# Para realizar los strings de analisis en los procesos de STN y STR requerimos hacer comparaciones de sus valores
 
 contString = []
 ingSTNString = []
 cargosTString = []
 
 # Analisis Contribuciones
-for i in range(len(Analisis_Contribuciones_DF) - 1):
-    if Analisis_Contribuciones_DF['FOES'][i + 1] > Analisis_Contribuciones_DF["FOES"][i]:
-        contString.append(' las contribuciones en el STN aumentaron principalemtne debido a ')
+for i in range(len(Analisis_Contribuciones_DF) - 1): # Se toma el DF de grafica y se le incluye el registro anterior al primero graficado 
+    if Analisis_Contribuciones_DF['FOES'][i + 1] > Analisis_Contribuciones_DF["FOES"][i]: # se comparan estos registros para diferentes variables
+        contString.append(' las contribuciones en el STN aumentaron principalemtne debido a ') # si se tiene una diferencia positiva se añade un string
     else:
-        contString.append(' las contribuciones en el STN disminuyeron principalemtne debido a ')
+        contString.append(' las contribuciones en el STN disminuyeron principalemtne debido a ') # si se tiene una diferencia negativa se añade otro 
 
 # Analisis Ingresos STN
 for i in range(len(Analisis_Ingresos_DF) - 1):

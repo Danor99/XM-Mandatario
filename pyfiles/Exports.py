@@ -8,7 +8,7 @@ from docx.shared import Pt
 from docx import Document
 from docx.shared import RGBColor
 from Main import trimestre as Trimestre, año as Año
-from Main import MMContr, MM_Ing_STR, mesesSTR, MM_Demanda_STR, MM_Cargos, MesesADD, AñosADD
+from Main import MM_Ing_STR, mesesSTR, MM_Demanda_STR, MM_Cargos, MesesADD, AñosADD
 from Main import ConvList, ingSTNString, cargosTString, contString
 from tkinter import *
 import os
@@ -363,7 +363,7 @@ añadir_parrafo('Fig 22, Evolución de cargo CPROG para ORs sin ADD asociada', 2
 
 ## Document Export
 
-doc.save("DocPruebaGenerado.docx")
+doc.save(r"{name}.docx".format(name='Informe Mandatario ' + str(Trimestre) + ' año '+ str(Año)))
 print('Done Exports!')
 
 
